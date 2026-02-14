@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import CustomerSection from "../components/salesOrder/CustomerSection";
 import ItemsTable from "../components/salesOrder/ItemsTable";
 import Button from "../components/ui/Button";
-import { fetchClients } from "../redux/slices/clientsSlice";
+import { fetchClients, updateClient } from '../redux/slices/clientsSlice';
 import { fetchItems } from "../redux/slices/itemsSlice";
 import {
     createOrder,
@@ -247,6 +247,25 @@ const SalesOrder = () => {
         taxRate: item.taxRate,
       })),
     };
+
+    const clientToUpdate = clients.find(c => c.id === formData.clientId);
+        if (clientToUpdate) {
+            const updatedClientData = {
+                ...clientToUpdate,
+                address1: clientAddress.address1,
+                address2: clientAddress.address2,
+                address3: clientAddress.address3,
+                suburb: clientAddress.suburb,
+                state: clientAddress.state,
+                postCode: clientAddress.postCode
+            };
+            try {
+                await dispatch(updateClient({ id: clientToUpdate.id, data: updatedClientData })).unwrap();
+            } catch (error) {
+                console.error("Failed to update client details:", error);
+                alert("Failed to update client details, but proceeding with order save.");
+            }
+        }
 
     if (isEditMode) {
       dispatch(updateOrder({ id, data: payload }));

@@ -6,6 +6,11 @@ export const fetchClients = createAsyncThunk('clients/fetchClients', async () =>
     return response.data;
 });
 
+export const updateClient = createAsyncThunk('clients/updateClient', async ({ id, data }) => {
+    const response = await api.put(`/clients/${id}`, data);
+    return response.data;
+});
+
 const clientsSlice = createSlice({
     name: 'clients',
     initialState: {
@@ -26,6 +31,12 @@ const clientsSlice = createSlice({
             .addCase(fetchClients.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
+            })
+            .addCase(updateClient.fulfilled, (state, action) => {
+                const index = state.items.findIndex(client => client.id === action.payload.id);
+                if (index !== -1) {
+                    state.items[index] = action.payload;
+                }
             });
     },
 });
